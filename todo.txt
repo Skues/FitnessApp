@@ -1,0 +1,3 @@
+-- Create simple login using React and connect it to Python backend
+-- Create account and login
+-- Simple exercise submission once user is logged in

@@ -55,7 +55,11 @@ class FitnessApp:
     def trackFood(self, name: str, weight: float, calories: int):
         print(f"Eaten {name} and was {calories} calories.")
         self.daily =- calories
-        receipt = json.dumps({"datetime": "Add the current date here", "foodName":name, "weight": weight, "calorieAmount":calories, "caloriesLeft":self.daily})  
+        receipt = json.dumps({"datetime": "Add the current date here",
+                              "foodName":name,
+                              "quantity": weight,
+                              "calorieAmount":calories,
+                              "caloriesLeft":self.daily})  
         with open("foodeaten.json", "a") as f:
             f.write(receipt)
 
