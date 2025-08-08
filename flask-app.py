@@ -48,7 +48,17 @@ def login():
     return "Attempted login"
 
 
-@app.route("/logWorkout")
+@app.route("/logWorkout", methods=["POST"])
 def logWorkout():
+    if request.method == "POST":
+        jsonExample = {
+            "workout": "Chest Day",
+            "lastedFor": 1.5,
+            "date": "10-10-10",
+            "exercises": [
+                {"name": "benchpress", "weight": 80, "reps": 10, "sets": 3},
+                {"name": "benchpress", "weight": 80, "reps": 10, "sets": 3},
+            ],
+        }
 
     return "bbo"
