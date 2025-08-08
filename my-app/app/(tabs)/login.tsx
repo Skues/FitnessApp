@@ -24,6 +24,7 @@ export default function Login() {
                 onChangeText={onChangePassword}
                 value={password}
                 placeholder="Enter password..."
+                secureTextEntry={true}
             />
             <Button
                 onPress={onButtonSubmit}
@@ -31,14 +32,21 @@ export default function Login() {
             />
         </View>
     );
-    function onButtonSubmit() {
+    async function onButtonSubmit() {
+        const response = await fetch("http://localhost:5000/login", {
+
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ username, password }),
+        });
+
+        console.log(response.text)
         console.log("SUBMIT BUTTON PRESSED");
         console.log("USERNAME: " + username)
         console.log("Password: ", password)
     }
-}
-function onButtonSubmit() {
-    console.log("SUBMIT BUTTON PRESSED");
 }
 const styles = StyleSheet.create({
     view: {
