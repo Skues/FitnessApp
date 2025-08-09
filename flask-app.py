@@ -30,6 +30,14 @@ class AuthToken(db.Model):
     userID = db.Column(db.Integer, db.ForeignKey("User.id"), nullable=False)
 
 
+class Workout(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    workoutName = db.Column(db.String, nullable=False)
+    timeSpent = db.Column(db.String, nullable=False)
+    date = db.Column(db.String, nullable=False)
+    # exercises = db.Column(Exercise[], nullable=False)
+
+
 with app.app_context():
     db.create_all()
 
