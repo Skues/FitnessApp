@@ -1,14 +1,16 @@
 // CREATE MODAL TO ALLOW THE USER TO INPUT AS MANY EXERCISES AS THEY WANT
 // Also inside that modal/window it can have another modal which opens up and allows the user to input the exercise specifics, then submit to an array and keep doing this for as many times as they want.
+//
+//Set it so when they type on keyboard and they click off, it closes.
 import React, { useState } from "react";
-import { View, Text, TextInput, StyleSheet, Button, Modal, TouchableOpacity } from "react-native";
-
-
+import { View, Text, TextInput, StyleSheet, Button, Modal, TouchableOpacity, Platform } from "react-native";
+import DateTimePicker from '@react-native-community/datetimepicker';
 
 export default function Workout() {
     const [workout, setWorkout] = useState("");
     const [timeSpent, setTimeSpent] = useState("");
-    const [date, setDate] = useState("");
+    const [date, setDate] = useState(new Date());
+    const [open, setOpen] = useState(false);
 
     const [exerciseList, setExerciseList] = useState<ExerciseItem[]>([]);
     const [exercisesSet, setExercisesSet] = useState(false);
@@ -33,6 +35,21 @@ export default function Workout() {
     const isWorkoutFormComplete = workout.trim() !== ''
         && timeSpent.trim() !== '';
 
+    const onChange = (event: any, selectedDate?: Date) => {
+        if (Platform.OS === 'android') {
+            setOpen(false); // close picker on Android
+        }
+
+        if (selectedDate) {
+            setDate(selectedDate);
+        }
+    };
+
+    const showPicker = () => {
+        console.log(open);
+        setOpen(true);
+    };
+
     return (
 
         <View style={styles.view}>
@@ -51,13 +68,23 @@ export default function Workout() {
                 placeholder="Enter time spent..."
                 placeholderTextColor={"#888888"}
             />
-            <TextInput
-                style={styles.input}
-                onChangeText={setDate}
-                value={date}
-                placeholder="Enter date (leave blank if todays date)..."
-                placeholderTextColor={"#888888"}
-            />
+            {open && (
+                <DateTimePicker
+                    value={date}
+                    mode="date"
+                    display="default"
+                    onChange={onChange}
+                />
+            )}
+            <Button title={open ? "Close" : "Open"} onPress={() => setOpen(!open)} />
+
+            {/* <TextInput */}
+            {/*     style={styles.input} */}
+            {/*     onChangeText={setDate} */}
+            {/*     value={date} */}
+            {/*     placeholder="Enter date (leave blank if todays date)..." */}
+            {/*     placeholderTextColor={"#888888"} */}
+            {/* /> */}
             <TouchableOpacity
                 style={[styles.button,
                 !isWorkoutFormComplete && styles.buttonDisabled]}

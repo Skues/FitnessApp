@@ -1,0 +1,5 @@
+{
+  "dependencies": {
+    "react-native-date-picker": "^5.0.13"
+  }
+}
