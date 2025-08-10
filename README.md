@@ -14,17 +14,17 @@ This project was created to:
 ## Current Features
 
 * Users can log a workout through:
-*   - Workout name
+    - Workout name
     - Time Spent
     - Date
 * Now the users can add multiple exercises to a workout, an exercise consists of:
-*   - Exercise name
+    - Exercise name
     - Weight used
     - Number of reps
     - Number of sets
  
 * Future features:
-*  - Auto filling previously done workouts using saved data
-*  - Data visualisation
+   - Auto filling previously done workouts using saved data
+   - Data visualisation
    - Machine learning
    - Potentially track the weight of the user and give them tips to their goals 
