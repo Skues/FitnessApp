@@ -210,12 +210,18 @@ export default function Workout() {
             </View>
         </TouchableWithoutFeedback>
     );
-    function onButtonConfirm() {
+    async function onButtonConfirm() {
         const timeSpent = Number(hours) + Number(minutes) / 60
 
         const json = { workout, timeSpent, date, exerciseList }
         console.log(JSON.stringify(json));
 
+        const response = await fetch("http://localhost:5000/logWorkout", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+        });
 
     }
     function addExercise() {
