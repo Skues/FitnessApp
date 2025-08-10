@@ -1,4 +1,4 @@
-# FitnessApp (Will change)
+# 🏋🏽 FitnessApp (Will change)
 
 (App name) is a full-stack fitness tracking app build using React Native on the frontend and Flask (Python) 
 on the backend. It allows users to log workouts and exerciss, with the goal of visualising progress and
