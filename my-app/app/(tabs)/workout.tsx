@@ -3,12 +3,14 @@
 //
 //Set it so when they type on keyboard and they click off, it closes.
 import React, { useState } from "react";
-import { View, Text, TextInput, StyleSheet, Button, Modal, TouchableOpacity, Platform } from "react-native";
+import { View, Text, TextInput, StyleSheet, Button, Modal, TouchableOpacity, Platform, TouchableWithoutFeedback, Keyboard } from "react-native";
 import DateTimePicker from '@react-native-community/datetimepicker';
+import { TimerPicker } from 'react-native-timer-picker';
 
 export default function Workout() {
     const [workout, setWorkout] = useState("");
-    const [timeSpent, setTimeSpent] = useState("");
+    const [hours, setHours] = useState('0');
+    const [minutes, setMinutes] = useState("0");
     const [date, setDate] = useState(new Date());
     const [open, setOpen] = useState(false);
 
@@ -33,7 +35,8 @@ export default function Workout() {
     const [modalVisible, setModalVisible] = useState(false);
 
     const isWorkoutFormComplete = workout.trim() !== ''
-        && timeSpent.trim() !== '';
+        && hours.trim() !== '0'
+        && minutes.trim() !== "0";
 
     const onChange = (event: any, selectedDate?: Date) => {
         if (Platform.OS === 'android') {
@@ -52,134 +55,163 @@ export default function Workout() {
 
     return (
 
-        <View style={styles.view}>
-            <Text>This is the workout page</Text>
-            <TextInput
-                style={styles.input}
-                onChangeText={setWorkout}
-                value={workout}
-                placeholder="Enter workout here..."
-                placeholderTextColor={"#888888"}
-            />
-            <TextInput
-                style={styles.input}
-                onChangeText={setTimeSpent}
-                value={timeSpent}
-                placeholder="Enter time spent..."
-                placeholderTextColor={"#888888"}
-            />
-            {open && (
-                <DateTimePicker
-                    value={date}
-                    mode="date"
-                    display="default"
-                    onChange={onChange}
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+            <View style={styles.view}>
+                <Text>This is the workout page</Text>
+                <TextInput
+                    style={styles.input}
+                    onChangeText={setWorkout}
+                    value={workout}
+                    placeholder="Enter workout here..."
+                    placeholderTextColor={"#888888"}
                 />
-            )}
-            <Button title={open ? "Close" : "Open"} onPress={() => setOpen(!open)} />
-
-            {/* <TextInput */}
-            {/*     style={styles.input} */}
-            {/*     onChangeText={setDate} */}
-            {/*     value={date} */}
-            {/*     placeholder="Enter date (leave blank if todays date)..." */}
-            {/*     placeholderTextColor={"#888888"} */}
-            {/* /> */}
-            <TouchableOpacity
-                style={[styles.button,
-                !isWorkoutFormComplete && styles.buttonDisabled]}
-                disabled={!isWorkoutFormComplete}
-                onPress={() => { setModalVisible(true) }}
-            >
-                <Text style={styles.buttonText}>Confirm Workout</Text>
-            </TouchableOpacity>
-            <Text>
-                {exerciseList.map((item, index) =>
-                    `#${index + 1}: ${item.name} - ${item.reps} reps x ${item.sets} sets @ ${item.weight}\n`
-                ).join('')}
-            </Text>
-
-            {exercisesSet && (
-                <TouchableOpacity
-                    style={styles.button}
-                    onPress={onButtonConfirm}
-                >
-                    <Text style={styles.buttonText}>Submit</Text>
-
-                </TouchableOpacity>
-            )}
-
-            <Modal
-                visible={modalVisible}
-            >
-                <View style={styles.modalContainer}>
-                    <View style={styles.modalContent}>
-                        <Text> Add Exercise Details </Text>
-                        <TextInput
-                            style={styles.input}
-                            onChangeText={setExercise}
-                            value={exercise}
-                            placeholder="Enter name of exercise..."
-                            placeholderTextColor={"#888888"}
-                        />
-                        <TextInput
-                            style={styles.input}
-                            onChangeText={setWeight}
-                            value={weight}
-                            placeholder="Enter weight ... "
-                            placeholderTextColor={"#888888"}
-                        />
-                        <TextInput
-                            style={styles.input}
-                            onChangeText={setReps}
-                            value={reps}
-                            placeholder="Enter reps"
-                            placeholderTextColor={"#888888"}
-                            keyboardType="numeric"
-                        />
-
-                        <TextInput
-                            style={styles.input}
-                            onChangeText={setSets}
-                            value={sets}
-                            placeholder="Enter sets"
-                            placeholderTextColor={"#888888"}
-                            keyboardType="numeric"
-                        />
-                        <TouchableOpacity
-                            style={[styles.button,
-                            !isFormComplete && styles.buttonDisabled]}
-                            disabled={!isFormComplete}
-                            onPress={addExercise}
-                        >
-                            <Text style={styles.buttonText}>Add Exercise</Text>
-                        </TouchableOpacity>
-
-                        <TouchableOpacity style={styles.button}
-                            onPress={() => { setModalVisible(!modalVisible) }}
-                        >
-                            <Text style={styles.buttonText}>Cancel</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity style={styles.button}
-                            onPress={() => {
-                                setExercisesSet(true)
-                                setModalVisible(!modalVisible)
-                            }}
-                        >
-                            <Text style={styles.buttonText}>Submit</Text>
-                        </TouchableOpacity>
-
-                        {/* <Button */}
-                        {/**/}
-                        {/*     onPress={() => { setModalVisible(!modalVisible) }} */}
-                        {/*     title="Close modal" */}
-                        {/* /> */}
-                    </View>
+                <View style={styles.row}>
+                    <TextInput
+                        style={styles.rowInputs}
+                        keyboardType="numeric"
+                        onChangeText={setHours}
+                        placeholder="Enter hours spent..."
+                        placeholderTextColor={"#888888"}
+                    />
+                    <TextInput
+                        style={styles.rowInputs}
+                        keyboardType="numeric"
+                        onChangeText={setMinutes}
+                        placeholder="Enter minutes spent..."
+                        placeholderTextColor={"#888888"}
+                    />
                 </View>
-            </Modal>
-        </View>
+                {open && (
+                    <View style={{ alignSelf: "center", alignItems: "stretch" }} >
+                        <DateTimePicker
+                            value={date}
+                            mode="date"
+                            display="default"
+                            onChange={onChange}
+                        />
+                    </View>
+                )}
+                <TouchableOpacity
+                    style={{
+                        backgroundColor: 'blue',
+                        padding: 10,
+                        borderRadius: 5,
+                        marginHorizontal: 5,
+                        marginVertical: 5,
+                    }}
+                    onPress={() => setOpen(!open)}
+                >
+                    <Text style={{ color: 'white' }}>
+                        {date.toDateString()}
+                    </Text>
+                </TouchableOpacity>
+
+                {/* <TextInput */}
+                {/*     style={styles.input} */}
+                {/*     onChangeText={setDate} */}
+                {/*     value={date} */}
+                {/*     placeholder="Enter date (leave blank if todays date)..." */}
+                {/*     placeholderTextColor={"#888888"} */}
+                {/* /> */}
+                <TouchableOpacity
+                    style={[styles.button,
+                    !isWorkoutFormComplete && styles.buttonDisabled]}
+                    disabled={!isWorkoutFormComplete}
+                    onPress={() => { setModalVisible(true) }}
+                >
+                    <Text style={styles.buttonText}>Confirm Workout</Text>
+                </TouchableOpacity>
+                <Text>
+                    {exerciseList.map((item, index) =>
+                        `#${index + 1}: ${item.name} - ${item.reps} reps x ${item.sets} sets @ ${item.weight}\n`
+                    ).join('')}
+                </Text>
+
+                {exercisesSet && (
+                    <TouchableOpacity
+                        style={styles.button}
+                        onPress={onButtonConfirm}
+                    >
+                        <Text style={styles.buttonText}>Submit</Text>
+
+                    </TouchableOpacity>
+                )}
+
+                <Modal
+                    visible={modalVisible}
+                >
+                    <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+                        <View style={styles.modalContainer}>
+                            <View style={styles.modalContent}>
+                                <Text> Add Exercise Details </Text>
+                                <TextInput
+                                    style={styles.input}
+                                    onChangeText={setExercise}
+                                    value={exercise}
+                                    placeholder="Enter name of exercise..."
+                                    placeholderTextColor={"#888888"}
+                                />
+                                <TextInput
+                                    style={styles.input}
+                                    onChangeText={setWeight}
+                                    value={weight}
+                                    placeholder="Enter weight ... "
+                                    placeholderTextColor={"#888888"}
+                                />
+                                <TextInput
+                                    style={styles.input}
+                                    onChangeText={setReps}
+                                    value={reps}
+                                    placeholder="Enter reps"
+                                    placeholderTextColor={"#888888"}
+                                    keyboardType="numeric"
+                                />
+
+                                <TextInput
+                                    style={styles.input}
+                                    onChangeText={setSets}
+                                    value={sets}
+                                    placeholder="Enter sets"
+                                    placeholderTextColor={"#888888"}
+                                    keyboardType="numeric"
+                                />
+                                <TouchableOpacity
+                                    style={[styles.button,
+                                    !isFormComplete && styles.buttonDisabled]}
+                                    disabled={!isFormComplete}
+                                    onPress={addExercise}
+                                >
+                                    <Text style={styles.buttonText}>Add Exercise</Text>
+                                </TouchableOpacity>
+
+                                <TouchableOpacity style={styles.button}
+                                    onPress={() => { setModalVisible(!modalVisible) }}
+                                >
+                                    <Text style={styles.buttonText}>Cancel</Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity style={styles.button}
+                                    onPress={() => {
+                                        setExercisesSet(true)
+                                        setModalVisible(!modalVisible)
+                                    }}
+                                >
+                                    <Text style={styles.buttonText}>Submit</Text>
+                                </TouchableOpacity>
+
+                                {/* <Button */}
+                                {/**/}
+                                {/*     onPress={() => { setModalVisible(!modalVisible) }} */}
+                                {/*     title="Close modal" */}
+                                {/* /> */}
+                            </View>
+                        </View>
+                    </TouchableWithoutFeedback>
+                </Modal>
+            </View>
+        </TouchableWithoutFeedback>
     );
     function onButtonConfirm() {
+        const timeSpent = Number(hours) + Number(minutes) / 60
 
         const json = { workout, timeSpent, date, exerciseList }
         console.log(JSON.stringify(json));
@@ -208,17 +240,31 @@ const styles = StyleSheet.create({
     view: {
         flex: 1,
         justifyContent: "center",
-        alignItems: "center",
+        alignItems: "stretch",
+        paddingHorizontal: 20,
     },
     input: {
-        alignSelf: "center",
         color: "#000000",
         backgroundColor: "#ffffff",
         height: 40,
-        margin: 12,
-        width: "80%",
+        marginHorizontal: 5,
+        marginVertical: 10,
+        paddingHorizontal: 10,
         borderWidth: 1,
-        padding: 10,
+        borderRadius: 5,
+        alignSelf: "auto",
+    },
+    rowInputs: {
+        flex: 1,
+        color: "#000000",
+        backgroundColor: "#ffffff",
+        height: 40,
+        marginHorizontal: 5,
+        marginVertical: 10,
+        paddingHorizontal: 10,
+        borderWidth: 1,
+        borderRadius: 5,
+        alignSelf: "auto",
     },
     modalContainer: {
         flex: 1,
@@ -254,7 +300,12 @@ const styles = StyleSheet.create({
     },
     buttonDisabled: {
         backgroundColor: "#cccccc",
-    }
+    },
+    row: {
+        alignItems: "stretch",
+        flexDirection: "row",
+        justifyContent: "space-between",
+    },
 });
 
 
