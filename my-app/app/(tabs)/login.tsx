@@ -1,6 +1,7 @@
 import React from "react";
 import { Link } from "expo-router";
 import { View, Text, TextInput, StyleSheet, Button } from "react-native";
+import * as SecureStore from 'expo-secure-store';
 
 export default function Login() {
     const [username, onChangeUsername] = React.useState("");
@@ -41,11 +42,16 @@ export default function Login() {
             },
             body: JSON.stringify({ username, password }),
         });
+        const data = await response.json();
+        if (response.ok) {
+            await SecureStore.setItemAsync('token', data.token)
+            const responseText = await response.text();
 
-        console.log(response.text)
-        console.log("SUBMIT BUTTON PRESSED");
-        console.log("USERNAME: " + username)
-        console.log("Password: ", password)
+            console.log(responseText)
+            console.log("SUBMIT BUTTON PRESSED");
+            console.log("USERNAME: " + username)
+            console.log("Password: ", password)
+        }
     }
 }
 const styles = StyleSheet.create({

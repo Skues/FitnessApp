@@ -8,6 +8,7 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import { TimerPicker } from 'react-native-timer-picker';
 
 export default function Workout() {
+    const userID = 1
     const [workout, setWorkout] = useState("");
     const [hours, setHours] = useState('0');
     const [minutes, setMinutes] = useState("0");

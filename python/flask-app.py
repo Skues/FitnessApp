@@ -7,13 +7,22 @@ from functools import wraps
 import datetime
 from flask import Flask, jsonify, request
 from flask_sqlalchemy import SQLAlchemy
+from flask_jwt_extended import (
+    create_access_token,
+    JWTManager,
+    jwt_required,
+    get_jwt_identity,
+)
 from flask_cors import CORS
 from sqlalchemy.orm import DeclarativeBase
 import jwt
-import plotly.express as px
 import pandas as pd
+import bcrypt
+
 
 SECRET_KEY = "blehblegblug"
+
+salt = bcrypt.gensalt()
 
 
 class Base(DeclarativeBase):
@@ -24,10 +33,12 @@ db = SQLAlchemy(model_class=Base)
 
 
 app = Flask(__name__)
+CORS(app)
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///project.db"
+app.config["JWT_SECRET_KEY"] = "superblegggg"
 db.init_app(app)
 
-CORS(app)
+jwt = JWTManager(app)
 
 
 class User(db.Model):
@@ -73,7 +84,9 @@ def signup():
     if request.method == "POST":
         data = request.get_json()
         print(data)
-        new_user = User(username=data["username"], password=data["password"])
+        bytes = data["password"].encode("utf-8")
+        hash = bcrypt.hashpw(bytes, salt)
+        new_user = User(username=data["username"], password=hash)
         # with open("users.json", "w") as f:
         #     json.dump(data, f)
         #     print("Writted to file")
@@ -86,23 +99,26 @@ def login():
         data = request.get_json()
         print(data)
         user = User.query.filter_by(username=data["username"]).first()
-        if user:
-            if user.password == data["password"]:
-                print("logged in")
-            else:
-                print("password invalid")
-        else:
-            print("User not found")
-            # login, generate and return an auth token
+        if user and bcrypt.checkpw(data["password"].encode("utf-8"), user.password):
+
+            access_token = create_access_token(identity=user.username)
+            return jsonify(token=access_token), 200
             print("logged in")
+
+        else:
+            return jsonify(error="Invalid username or password"), 401
     return "Attempted login"
 
 
 @app.route("/logWorkout", methods=["POST"])
+@jwt_required()
 def logWorkout():
+
     if request.method == "POST":
-        # Check the user's auth token
         data = request.get_json()
+        userIdentity = get_jwt_identity()
+        user = User.query.filter_by(username=userIdentity).first()
+        # Check the user's auth token
         jsonExample = {
             "workout": "Chest Day",
             "lastedFor": 1.5,
@@ -113,7 +129,10 @@ def logWorkout():
             ],
         }
         workout = Workout(
-            workoutName=data["name"], timeSpent=data["lastedFor"], date=data["date"]
+            workoutName=data["name"],
+            timeSpent=data["lastedFor"],
+            date=data["date"],
+            user_id=user.id,
         )
         db.session.add(workout)
         db.session.flush()
@@ -121,62 +140,16 @@ def logWorkout():
         new_exercises = []
         for exercise in data["exercises"]:
             new_exercise = Exercise(
-                name=data["name"],
-                weight=data["weight"],
-                reps=data["reps"],
-                sets=data["sets"],
+                name=exercise["name"],
+                weight=exercise["weight"],
+                reps=exercise["reps"],
+                sets=exercise["sets"],
                 workout_id=workout.id,
             )
             new_exercises.append(new_exercise)
         db.session.add_all(new_exercises)
         db.session.commit()
     return "bbo"
-
-
-def generate_token(user_data):
-    payload = {
-        "user_id": user_data["id"],
-        "username": user_data["username"],
-        "exp": datetime.datetime.utcnow() + datetime.timedelta(hours=1),
-    }
-    token = jwt.encode(payload, SECRET_KEY, algorithm="HS256")
-    return token
-
-
-SECRET_KEY = "your-secret-key"
-
-
-def token_required(f):
-    @wraps(f)
-    def decorated(*args, **kwargs):
-        token = None
-
-        # Step 1: Check if Authorization header is present
-        if "Authorization" in request.headers:
-            auth_header = request.headers["Authorization"]
-
-            # Step 2: Check if it starts with 'Bearer ' and split
-            if auth_header.startswith("Bearer "):
-                token = auth_header.split(" ")[1]
-
-        # Step 3: If token missing, return 401
-        if not token:
-            return jsonify({"msg": "Missing token"}), 401
-
-        try:
-            # Step 4: Decode and verify token
-            decoded = jwt.decode(token, SECRET_KEY, algorithms=["HS256"])
-            # Attach user info to request context for later use
-            request.user = decoded
-        except jwt.ExpiredSignatureError:
-            return jsonify({"msg": "Token expired"}), 401
-        except jwt.InvalidTokenError:
-            return jsonify({"msg": "Invalid token"}), 401
-
-        # Step 5: Token valid, proceed to the route function
-        return f(*args, **kwargs)
-
-    return decorated
 
 
 def plotData():
