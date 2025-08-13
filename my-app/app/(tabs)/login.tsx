@@ -3,6 +3,7 @@ import { Link } from "expo-router";
 import { View, Text, TextInput, StyleSheet, Button, Modal, TouchableOpacity } from "react-native";
 import * as SecureStore from 'expo-secure-store';
 
+const link = "http://192.168.1.239:5000"
 
 export default function Account() {
 
@@ -58,7 +59,21 @@ export default function Account() {
             >
                 <Text style={styles.buttonText}>Signup</Text>
             </TouchableOpacity>
+            <TouchableOpacity style={styles.button}
+                onPress={async () => {
+                    try {
+
+                        const token = await SecureStore.getItemAsync("token")
+                        console.log(token)
+                    } catch (error) {
+                        console.log("Failed", error);
+                    }
+                }}
+            >
+                <Text> Test Token </Text>
+            </TouchableOpacity>
         </View>
+
 
     );
 }
@@ -97,7 +112,7 @@ function Login() {
         </View>
     );
     async function onButtonSubmit() {
-        const response = await fetch("http://localhost:5000/login", {
+        const response = await fetch(link + "/login", {
 
             method: "POST",
             headers: {
@@ -151,13 +166,13 @@ function Signup() {
         </View>
     );
     async function onButtonSubmit() {
-        const response = await fetch("http://localhost:5000/signup", {
+        const response = await fetch(link + "/signup", {
 
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
             },
-            body: JSON.stringify({ signupUsername, signupPassword }),
+            body: JSON.stringify({ "username": signupUsername, "password": signupPassword }),
         });
         const data = await response.json();
         if (response.ok) {

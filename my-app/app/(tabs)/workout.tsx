@@ -6,6 +6,7 @@ import React, { useState } from "react";
 import { View, Text, TextInput, StyleSheet, Button, Modal, TouchableOpacity, Platform, TouchableWithoutFeedback, Keyboard } from "react-native";
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { TimerPicker } from 'react-native-timer-picker';
+import * as SecureStore from 'expo-secure-store';
 
 export default function Workout() {
     const userID = 1
@@ -208,6 +209,7 @@ export default function Workout() {
                         </View>
                     </TouchableWithoutFeedback>
                 </Modal>
+                <GetWorkouts />
             </View>
         </TouchableWithoutFeedback>
     );
@@ -217,12 +219,21 @@ export default function Workout() {
         const json = { workout, timeSpent, date, exerciseList }
         console.log(JSON.stringify(json));
 
-        const response = await fetch("http://localhost:5000/logWorkout", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-        });
+        try {
+            const token = await SecureStore.getItemAsync("token")
+            const response = await fetch("http://192.168.1.239:5000/logWorkout", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`,
+                },
+                body: JSON.stringify(json),
+            });
+            const responseData = await response.json();
+            console.log(responseData)
+        } catch (error) {
+            console.error("Error sending workout information", error);
+        }
 
     }
     function addExercise() {
@@ -243,6 +254,20 @@ export default function Workout() {
     //     });
     // }
 }
+function GetWorkouts() {
+    return (
+        <View>
+            <TouchableOpacity style={styles.button}
+                onPress={() => {
+
+                    fetch("http://192.168.1.239:5000/getWorkoutData");
+                }}>
+                <Text>Get workout data</Text>
+            </TouchableOpacity>
+        </View>
+    );
+}
+
 const styles = StyleSheet.create({
     view: {
         flex: 1,

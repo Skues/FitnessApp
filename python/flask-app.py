@@ -15,7 +15,8 @@ from flask_jwt_extended import (
 )
 from flask_cors import CORS
 from sqlalchemy.orm import DeclarativeBase
-import jwt
+
+# import jwt
 import pandas as pd
 import bcrypt
 
@@ -87,6 +88,9 @@ def signup():
         bytes = data["password"].encode("utf-8")
         hash = bcrypt.hashpw(bytes, salt)
         new_user = User(username=data["username"], password=hash)
+        db.session.add(new_user)
+        db.session.commit()
+
         # with open("users.json", "w") as f:
         #     json.dump(data, f)
         #     print("Writted to file")
@@ -99,8 +103,12 @@ def signup():
 def login():
     if request.method == "POST":
         data = request.get_json()
+        users = User.query.all()
+        for user in users:
+            print(user.id, user.username, user.password)
         print(data)
         user = User.query.filter_by(username=data["username"]).first()
+        print("User: ", user)
         if user and bcrypt.checkpw(data["password"].encode("utf-8"), user.password):
 
             access_token = create_access_token(identity=user.username)
@@ -116,10 +124,16 @@ def login():
 @jwt_required()
 def logWorkout():
 
+    print("Made it")
     if request.method == "POST":
+
         data = request.get_json()
         userIdentity = get_jwt_identity()
-        user = User.query.filter_by(username=userIdentity).first()
+        print("data: ", data)
+        if userIdentity:
+            user = User.query.filter_by(username=userIdentity).first()
+
+            print(user)
         # Check the user's auth token
         jsonExample = {
             "workout": "Chest Day",
@@ -131,8 +145,8 @@ def logWorkout():
             ],
         }
         workout = Workout(
-            workoutName=data["name"],
-            timeSpent=data["lastedFor"],
+            workoutName=data["workout"],
+            timeSpent=data["timeSpent"],
             date=data["date"],
             user_id=user.id,
         )
@@ -140,7 +154,7 @@ def logWorkout():
         db.session.flush()
 
         new_exercises = []
-        for exercise in data["exercises"]:
+        for exercise in data["exerciseList"]:
             new_exercise = Exercise(
                 name=exercise["name"],
                 weight=exercise["weight"],
@@ -151,27 +165,26 @@ def logWorkout():
             new_exercises.append(new_exercise)
         db.session.add_all(new_exercises)
         db.session.commit()
+        return jsonify({"message": "Workout logged successfully"}), 200
     return "bbo"
 
 
-def plotData():
+@app.route("/getWorkoutData", methods=["GET"])
+def getWorkoutData():
+    workouts = Workout.query.all()
+    exercises = Exercise.query.all()
+    for workout in workouts:
+        print(workout.id, workout.workoutName, workout.timeSpent, workout.user_id)
+    for exercise in exercises:
+        print(
+            exercise.name,
+            exercise.weight,
+            exercise.reps,
+            exercise.sets,
+            exercise.workout_id,
+        )
+    return "beh"
 
-    # takes a workout name as an input
-    workout = {"name": "bench"}
-    # then searches through all the users stored workouts of this type and creates a graph oh progress
-    data = {
-        "exercise": "Bench Press",
-        "unit": "kg",
-        "progress": [
-            {"date": "2025-07-01", "avg_weight": 60, "avg_reps": 10, "sets": 3},
-            {"date": "2025-07-08", "avg_weight": 62.5, "avg_reps": 10, "sets": 3},
-            {"date": "2025-07-15", "avg_weight": 65, "avg_reps": 9, "sets": 3},
-            {"date": "2025-07-22", "avg_weight": 67.5, "avg_reps": 8, "sets": 3},
-            {"date": "2025-07-29", "avg_weight": 70, "avg_reps": 8, "sets": 3},
-            {"date": "2025-08-05", "avg_weight": 72.5, "avg_reps": 7, "sets": 3},
-            {"date": "2025-08-12", "avg_weight": 75, "avg_reps": 6, "sets": 3},
-        ],
-    }
-    df = pd.DataFrame(data["progress"])
 
-    return data
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=5000, debug=True)
