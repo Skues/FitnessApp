@@ -90,6 +90,8 @@ def signup():
         # with open("users.json", "w") as f:
         #     json.dump(data, f)
         #     print("Writted to file")
+
+        # Redirect to login screen?
     return "Attempted login"
 
 
