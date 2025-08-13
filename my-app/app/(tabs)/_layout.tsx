@@ -9,6 +9,8 @@ export default function TabLayout() {
                 options={{ tabBarLabel: "Login" }} />
             <Tabs.Screen name="workout"
                 options={{ tabBarLabel: "Workout" }} />
+            <Tabs.Screen name="dashboard"
+                options={{ tabBarLabel: "Dashboard" }} />
         </Tabs>
     );
 }

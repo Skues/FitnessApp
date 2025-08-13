@@ -169,6 +169,39 @@ def logWorkout():
     return "bbo"
 
 
+@app.route("/workout", methods=["GET"])
+@jwt_required()
+def getAllWorkouts():
+    userIdentity = get_jwt_identity()
+    user = User.query.filter_by(username=userIdentity).first()
+    workouts = Workout.query.filter_by(user_id=user.id)
+    json = []
+    for workout in workouts:
+        workoutID = workout.id
+        exercises = Exercise.query.filter_by(workout_id=workoutID)
+        exer = []
+        for exercise in exercises:
+            exer.append(
+                {
+                    "name": exercise.name,
+                    "weight": exercise.weight,
+                    "reps": exercise.reps,
+                    "sets": exercise.sets,
+                }
+            )
+
+        json.append(
+            {
+                "workout": workout.workoutName,
+                "timeSpent": workout.timeSpent,
+                "date": workout.date,
+                "exercises": exer,
+            }
+        )
+    print(json)
+    return jsonify(json), 200
+
+
 @app.route("/getWorkoutData", methods=["GET"])
 def getWorkoutData():
     workouts = Workout.query.all()
