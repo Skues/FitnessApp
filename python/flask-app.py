@@ -192,6 +192,7 @@ def getAllWorkouts():
 
         json.append(
             {
+                "id": workout.id,
                 "workout": workout.workoutName,
                 "timeSpent": workout.timeSpent,
                 "date": workout.date,

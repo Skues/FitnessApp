@@ -43,7 +43,7 @@ function Workouts() {
 
                     // console.log(workoutData);
                     setData(workoutData);
-                    console.log(data);
+                    // console.log(data);
                 }
             };
             fetchData();
@@ -51,13 +51,28 @@ function Workouts() {
 
         }, [])
     );
-    return ( // need to map the data to show it properly
+    return ( // Properly show the workout with their own text box and the exercises inside of it 
         <View style={styles.view}>
-            <Text>
-                {/* {data} */}
-            </Text>
+            {data.map(workout => (
+                <View key={workout.id} style={styles.workoutContainer}>
+                    <Text>
+                        {workout.workout} - {formatDate(new Date(workout.date))} | {workout.timeSpent} hours
+                    </Text>
+                    {workout.exercises.map(exercise => (
+
+                        <Text key={`${workout.id}-${exercise.id}`}>
+                            - {exercise.name} , Weight: {exercise.weight}, Reps: {exercise.reps}, Sets: {exercise.sets}
+                        </Text>
+                    ))}
+                </View>
+            ))}
         </View>
     );
+    function formatDate(date: Date) {
+        console.log(date.getDay(), date.getDate(), date.getMonth())
+        return date.getDate()
+
+    }
 }
 const styles = StyleSheet.create({
     view: {
@@ -128,6 +143,20 @@ const styles = StyleSheet.create({
         alignItems: "stretch",
         flexDirection: "row",
         justifyContent: "space-between",
+    },
+    workoutContainer: {
+        margin: 10,
+        width: '85%',
+        padding: 20,
+        backgroundColor: 'white',
+        borderRadius: 10,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.3,
+        shadowRadius: 4,
+        elevation: 5,
+
+
     },
 });
 
