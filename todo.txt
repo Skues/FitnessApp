@@ -1,3 +1,9 @@
 -- Create simple login using React and connect it to Python backend
 -- Create account and login
 -- Simple exercise submission once user is logged in
+
+- Block users from doing things unless theyre logged in
+- Have a database of splits and exercises for fuzzy finding
+- Track which exercises/muscle group they do too much and let them know
+
+             Change it so the modal and stuff is all inside the Login component 

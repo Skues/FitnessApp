@@ -183,6 +183,7 @@ def getAllWorkouts():
         for exercise in exercises:
             exer.append(
                 {
+                    "id": exercise.id,
                     "name": exercise.name,
                     "weight": exercise.weight,
                     "reps": exercise.reps,
@@ -199,7 +200,7 @@ def getAllWorkouts():
                 "exercises": exer,
             }
         )
-    print(json)
+    # print(json)
     return jsonify(json), 200
 
 
@@ -218,6 +219,27 @@ def getWorkoutData():
             exercise.workout_id,
         )
     return "beh"
+
+
+@app.route("/clearUsers", methods=["GET"])
+def clearUsers():
+    User.query.delete()
+    db.session.commit()
+    return jsonify({"message": "Users cleared"})
+
+
+@app.route("/clearWorkouts", methods=["GET"])
+def clearWorkouts():
+    Workout.query.delete()
+    db.session.commit()
+    return jsonify({"message": "Workouts cleared"})
+
+
+@app.route("/clearExercises", methods=["GET"])
+def clearExercises():
+    Exercise.query.delete()
+    db.session.commit()
+    return jsonify({"message": "Exercises cleared"})
 
 
 if __name__ == "__main__":

@@ -1,10 +1,11 @@
 import React from "react";
-import { Link } from "expo-router";
-import { View, Text, TextInput, StyleSheet, Button, Modal, TouchableOpacity } from "react-native";
+import { Link, Redirect, useRouter } from "expo-router";
+import { View, Text, TextInput, StyleSheet, Button, Modal, TouchableOpacity, Keyboard } from "react-native";
 import * as SecureStore from 'expo-secure-store';
 
 const link = "http://192.168.1.239:5000"
 
+const router = useRouter();
 export default function Account() {
 
     const [loginActive, setLoginActive] = React.useState(false);
@@ -13,6 +14,7 @@ export default function Account() {
         <View
             style={styles.view}
         >
+            {/* Change it so the modal and stuff is all inside the Login component  */}
             <Modal
                 visible={loginActive}
             >
@@ -112,6 +114,7 @@ function Login() {
         </View>
     );
     async function onButtonSubmit() {
+        Keyboard.dismiss;
         const response = await fetch(link + "/login", {
 
             method: "POST",
@@ -121,14 +124,13 @@ function Login() {
             body: JSON.stringify({ username, password }),
         });
         const data = await response.json();
+        console.log("Waiting for data");
         if (response.ok) {
+            console.log("Response is ok");
             await SecureStore.setItemAsync('token', data.token)
-            const responseText = await response.text();
 
-            console.log(responseText)
-            console.log("SUBMIT BUTTON PRESSED");
-            console.log("USERNAME: " + username)
-            console.log("Password: ", password)
+            console.log("Rerouting");
+            router.replace("/(tabs)/dashboard");
         }
     }
 }
@@ -166,6 +168,7 @@ function Signup() {
         </View>
     );
     async function onButtonSubmit() {
+        Keyboard.dismiss;
         const response = await fetch(link + "/signup", {
 
             method: "POST",

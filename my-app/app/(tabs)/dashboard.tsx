@@ -1,13 +1,13 @@
 import { useState, useEffect, useCallback } from "react";
-import { Link, useFocusEffect } from "expo-router";
-import { Text, View, StyleSheet } from "react-native";
+import { Link, Redirect, useFocusEffect } from "expo-router";
+import { Text, View, StyleSheet, TouchableOpacity } from "react-native";
 import * as SecureStore from 'expo-secure-store';
 
 export default function Index() {
     return (
         <View style={styles.view}
         >
-            <Text>This is the Dashboard page</Text>
+            <Text>Recent Workouts</Text>
             <Workouts />
         </View>
     );
@@ -19,6 +19,9 @@ function Workouts() {
 
         try {
             const token = await SecureStore.getItemAsync("token");
+            if (!token) {
+                console.log("you need to login");
+            }
             const response = await fetch("http://192.168.1.239:5000/workout", {
                 method: "GET",
                 headers: {
@@ -30,6 +33,12 @@ function Workouts() {
 
                 const responseData = await response.json();
                 return (responseData)
+            }
+            else {
+
+                console.log("Token is invalid or expired, logging out");
+                await SecureStore.deleteItemAsync("token");
+                return <Redirect href="/login" />
             }
         } catch (error) {
             console.error("Error retreiving workout data, ", error);
@@ -55,24 +64,54 @@ function Workouts() {
         <View style={styles.view}>
             {data.map(workout => (
                 <View key={workout.id} style={styles.workoutContainer}>
-                    <Text>
+                    <Text style={styles.workoutText}>
                         {workout.workout} - {formatDate(new Date(workout.date))} | {workout.timeSpent} hours
                     </Text>
-                    {workout.exercises.map(exercise => (
-
-                        <Text key={`${workout.id}-${exercise.id}`}>
-                            - {exercise.name} , Weight: {exercise.weight}, Reps: {exercise.reps}, Sets: {exercise.sets}
-                        </Text>
-                    ))}
+                    <ExpandableExercise exercises={workout.exercises} />
+                    {/* {workout.exercises.map(exercise => ( */}
+                    {/**/}
+                    {/*     <Text key={`${workout.id}-${exercise.id}`} style={styles.exerciseText}> */}
+                    {/*         - {exercise.name} , Weight: {exercise.weight}, Reps: {exercise.reps}, Sets: {exercise.sets} */}
+                    {/*     </Text> */}
+                    {/* ))} */}
                 </View>
             ))}
         </View>
     );
     function formatDate(date: Date) {
         console.log(date.getDay(), date.getDate(), date.getMonth())
-        return date.getDate()
+        return `${date.getDate()}/${date.getMonth()}/${date.getFullYear()}`
 
     }
+}
+const ExpandableExercise = ({ exercises = [] }) => {
+
+    const [expanded, setExpanded] = useState(false)
+    const toggleExpand = () => {
+        setExpanded(!expanded);
+    };
+    return (
+
+        <TouchableOpacity onPress={toggleExpand}>
+            <View style={styles.workoutContainer}>
+                {!expanded && (
+                    <Text> Click to expand</Text>
+                )}
+                {expanded && (
+
+                    exercises.map(exercise => (
+                        <View key={exercise.id}>
+                            <Text style={styles.exerciseText} >- {exercise.name}  </Text>
+                            <Text style={styles.exerciseText}> Weight: {exercise.weight} Reps: {exercise.reps} Sets: {exercise.sets}</Text>
+                        </View>
+                    ))
+
+                )
+                }
+            </View>
+        </TouchableOpacity >
+    );
+
 }
 const styles = StyleSheet.create({
     view: {
@@ -145,18 +184,27 @@ const styles = StyleSheet.create({
         justifyContent: "space-between",
     },
     workoutContainer: {
-        margin: 10,
-        width: '85%',
-        padding: 20,
-        backgroundColor: 'white',
+        backgroundColor: '#ffffff',
         borderRadius: 10,
+        padding: 16,
+        marginBottom: 16,
         shadowColor: '#000',
+        shadowOpacity: 0.1,
         shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.3,
         shadowRadius: 4,
-        elevation: 5,
-
-
+        elevation: 3, // for Android shadow
+    },
+    workoutText: {
+        fontSize: 16,
+        fontWeight: 'bold',
+        marginBottom: 8,
+        color: '#333',
+    },
+    exerciseText: {
+        fontSize: 14,
+        color: '#555',
+        paddingLeft: 10,
+        marginBottom: 4,
     },
 });
 
