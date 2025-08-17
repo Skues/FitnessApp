@@ -1,8 +1,9 @@
 import { useState, useEffect, useCallback } from "react";
-import { Link, Redirect, useFocusEffect } from "expo-router";
+import { Link, Redirect, useFocusEffect, useRouter } from "expo-router";
 import { Text, View, StyleSheet, TouchableOpacity } from "react-native";
 import * as SecureStore from 'expo-secure-store';
 
+const router = useRouter();
 export default function Index() {
     return (
         <View style={styles.view}
@@ -32,13 +33,14 @@ function Workouts() {
             if (response.ok) {
 
                 const responseData = await response.json();
+                console.log("Workout data:", responseData);
                 return (responseData)
             }
             else {
 
                 console.log("Token is invalid or expired, logging out");
                 await SecureStore.deleteItemAsync("token");
-                return <Redirect href="/login" />
+                return null;
             }
         } catch (error) {
             console.error("Error retreiving workout data, ", error);
@@ -46,6 +48,7 @@ function Workouts() {
     }
     useFocusEffect(
         useCallback(() => {
+            console.log("Screen focused");
             const fetchData = async () => {
                 const workoutData = await getWorkouts();
                 if (workoutData) {
@@ -53,6 +56,10 @@ function Workouts() {
                     // console.log(workoutData);
                     setData(workoutData);
                     // console.log(data);
+                } else {
+
+                    router.replace("/login");
+                    return;
                 }
             };
             fetchData();

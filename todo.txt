@@ -6,4 +6,9 @@
 - Have a database of splits and exercises for fuzzy finding
 - Track which exercises/muscle group they do too much and let them know
 
-             Change it so the modal and stuff is all inside the Login component 
+- Change it so the modal and stuff is all inside the Login component 
+
+- Allow the user to pick KG/LBS for submitting their workouts and use their metric forever
+
+- Allow the user to submit their specific rep and weight count per set they did per exercise
+They say how many sets they did and then they have to fill out all of the sets info

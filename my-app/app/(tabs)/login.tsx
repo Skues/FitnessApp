@@ -78,114 +78,117 @@ export default function Account() {
 
 
     );
-}
+    function Login() {
+        const [username, onChangeUsername] = React.useState("");
+        const [password, onChangePassword] = React.useState("");
+        return (
 
 
+            <View
+                style={styles.modalContent}>
 
-function Login() {
-    const [username, onChangeUsername] = React.useState("");
-    const [password, onChangePassword] = React.useState("");
-    return (
+                <Text> Login form </Text>
+                <TextInput
+                    style={styles.input}
+                    onChangeText={onChangeUsername}
+                    value={username}
+                    placeholder="Enter username..."
+                    placeholderTextColor={"#888888"}
+                />
+                <TextInput
+                    style={styles.input}
+                    onChangeText={onChangePassword}
+                    value={password}
+                    placeholder="Enter password..."
+                    placeholderTextColor={"#888888"}
+                    secureTextEntry={true}
+                />
+                <Button
+                    onPress={onButtonSubmit}
+                    title="Submit Button"
+                />
+            </View>
+        );
+        async function onButtonSubmit() {
+            Keyboard.dismiss;
+            const response = await fetch(link + "/login", {
+
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ username, password }),
+            });
+            const data = await response.json();
+            console.log("Waiting for data");
+            if (response.ok) {
+                console.log("Response is ok");
+                await SecureStore.setItemAsync('token', data.token)
+
+                console.log("Rerouting");
+                setLoginActive(false);
+                router.replace("/(tabs)/dashboard");
+            }
+        }
+    }
+    function Signup() {
+
+        const [signupUsername, setSignupUsername] = React.useState("");
+        const [signupPassword, setSignupPassword] = React.useState("");
+        return (
 
 
-        <View
-            style={styles.modalContent}>
+            <View
+                style={styles.modalContent}>
 
-            <Text> Login form </Text>
-            <TextInput
-                style={styles.input}
-                onChangeText={onChangeUsername}
-                value={username}
-                placeholder="Enter username..."
-                placeholderTextColor={"#888888"}
-            />
-            <TextInput
-                style={styles.input}
-                onChangeText={onChangePassword}
-                value={password}
-                placeholder="Enter password..."
-                placeholderTextColor={"#888888"}
-                secureTextEntry={true}
-            />
-            <Button
-                onPress={onButtonSubmit}
-                title="Submit Button"
-            />
-        </View>
-    );
-    async function onButtonSubmit() {
-        Keyboard.dismiss;
-        const response = await fetch(link + "/login", {
+                <Text>Signup Form</Text>
+                <TextInput
+                    style={styles.input}
+                    onChangeText={setSignupUsername}
+                    value={signupUsername}
+                    placeholder="Enter username..."
+                    placeholderTextColor={"#888888"}
+                />
+                <TextInput
+                    style={styles.input}
+                    onChangeText={setSignupPassword}
+                    value={signupPassword}
+                    placeholder="Enter password..."
+                    placeholderTextColor={"#888888"}
+                    secureTextEntry={true}
+                />
+                <Button
+                    onPress={onButtonSubmit}
+                    title="Submit Button"
+                />
+            </View>
+        );
+        async function onButtonSubmit() {
+            Keyboard.dismiss;
+            const response = await fetch(link + "/signup", {
 
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({ username, password }),
-        });
-        const data = await response.json();
-        console.log("Waiting for data");
-        if (response.ok) {
-            console.log("Response is ok");
-            await SecureStore.setItemAsync('token', data.token)
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ "username": signupUsername, "password": signupPassword }),
+            });
+            const data = await response.json();
+            setSignupActive(false);
+            if (response.ok) {
+                console.log("signup successful");
 
-            console.log("Rerouting");
-            router.replace("/(tabs)/dashboard");
+
+            } else {
+                console.log("Signup not successful");
+            }
         }
     }
 }
 
-function Signup() {
-
-    const [signupUsername, setSignupUsername] = React.useState("");
-    const [signupPassword, setSignupPassword] = React.useState("");
-    return (
 
 
-        <View
-            style={styles.modalContent}>
 
-            <Text>Signup Form</Text>
-            <TextInput
-                style={styles.input}
-                onChangeText={setSignupUsername}
-                value={signupUsername}
-                placeholder="Enter username..."
-                placeholderTextColor={"#888888"}
-            />
-            <TextInput
-                style={styles.input}
-                onChangeText={setSignupPassword}
-                value={signupPassword}
-                placeholder="Enter password..."
-                placeholderTextColor={"#888888"}
-                secureTextEntry={true}
-            />
-            <Button
-                onPress={onButtonSubmit}
-                title="Submit Button"
-            />
-        </View>
-    );
-    async function onButtonSubmit() {
-        Keyboard.dismiss;
-        const response = await fetch(link + "/signup", {
-
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({ "username": signupUsername, "password": signupPassword }),
-        });
-        const data = await response.json();
-        if (response.ok) {
-            console.log("signup successful");
-
-        } else {
-            console.log("Signup not successful");
-        }
-    }
-}
 const styles = StyleSheet.create({
     view: {
         flex: 1,

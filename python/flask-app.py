@@ -20,6 +20,7 @@ from sqlalchemy.orm import DeclarativeBase
 import pandas as pd
 import bcrypt
 
+from plot import plotE1RM, monthFrequency
 
 SECRET_KEY = "blehblegblug"
 
@@ -219,6 +220,40 @@ def getWorkoutData():
             exercise.workout_id,
         )
     return "beh"
+
+
+    # Get data from databases using user id and exercise name 
+    # and return all the data in a format like below
+@app.route("plotGraph", methods=["GET"])
+@jwt_required()
+def plotData():
+    userIdentity = get_jwt_identity()
+    user = User.query.filter_by(username=userIdentity).first()
+    requestData = request.get_json()
+    exercise = requestData["exercise"]
+    exerciseData = Exercise.query.filter_by(name=exercise).all()
+
+    # Need dates as well using workout id??
+    keys = ("weight", "reps", "sets")
+    data = { "exercise": exercise, "unit": "kg", "progress": [
+        {k: d[k] for k in keys} for d in exerciseData
+    ]}
+    fakeData = {
+        "exercise": "Bench Press",
+        "unit": "kg",
+        "progress": [
+            {"date": "2025-07-01", "avg_weight": 60, "avg_reps": 10, "sets": 3},
+            {"date": "2025-07-08", "avg_weight": 62.5, "avg_reps": 8, "sets": 3},
+            {"date": "2025-07-15", "avg_weight": 62.5, "avg_reps": 9, "sets": 3},
+            {"date": "2025-07-22", "avg_weight": 65, "avg_reps": 7, "sets": 3},
+            {"date": "2025-07-29", "avg_weight": 65, "avg_reps": 9, "sets": 3},
+            {"date": "2025-08-05", "avg_weight": 65, "avg_reps": 11, "sets": 3},
+            {"date": "2025-08-12", "avg_weight": 67.5, "avg_reps": 9, "sets": 3},
+        ],
+    }
+
+    plotE1RM(fakeData)
+    return "nothing"
 
 
 @app.route("/clearUsers", methods=["GET"])
