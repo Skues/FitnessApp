@@ -29,6 +29,8 @@ export default function Workout() {
     const [reps, setReps] = useState("");
     const [sets, setSets] = useState("");
 
+    const [weightMetric, setWeightMetric] = useState("KG");
+
     const isFormComplete = exercise.trim() !== ''
         && weight.trim() !== ''
         && reps.trim() !== ''
@@ -159,7 +161,20 @@ export default function Workout() {
                                     value={weight}
                                     placeholder="Enter weight ... "
                                     placeholderTextColor={"#888888"}
+                                    keyboardType="numeric"
                                 />
+                                <View className="buttonContainer"
+
+                                >
+                                    <TouchableOpacity className="buttonContent">
+                                        <Text>KG</Text>
+                                    </TouchableOpacity>
+
+                                    <TouchableOpacity className="buttonContent">
+
+                                        <Text>LBS</Text>
+                                    </TouchableOpacity>
+                                </View>
                                 <TextInput
                                     style={styles.input}
                                     onChangeText={setReps}
