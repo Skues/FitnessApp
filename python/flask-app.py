@@ -234,6 +234,7 @@ def plotData():
     exerciseData = Exercise.query.filter_by(name=exercise).all()
 
     # Need dates as well using workout id??
+
     keys = ("weight", "reps", "sets")
     data = { "exercise": exercise, "unit": "kg", "progress": [
         {k: d[k] for k in keys} for d in exerciseData

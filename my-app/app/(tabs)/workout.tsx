@@ -166,11 +166,14 @@ export default function Workout() {
                                 <View className="buttonContainer"
 
                                 >
-                                    <TouchableOpacity className="buttonContent">
+                                    <TouchableOpacity className="buttonContent" style={weightMetric === "LBS" ? styles.activeMetric : styles.inactiveMetric}
+                                        onPress={() => { setWeightMetric("KG") }}>
                                         <Text>KG</Text>
                                     </TouchableOpacity>
 
-                                    <TouchableOpacity className="buttonContent">
+                                    <TouchableOpacity className="buttonContent" style={weightMetric === "LBS" ? styles.activeMetric : styles.inactiveMetric}
+                                        onPress={() => { setWeightMetric("LBS") }}
+                                    >
 
                                         <Text>LBS</Text>
                                     </TouchableOpacity>
@@ -252,7 +255,14 @@ export default function Workout() {
 
     }
     function addExercise() {
-        const newItem: ExerciseItem = { "name": exercise, "weight": weight, "reps": reps, "sets": sets }
+        let newWeight;
+        if (weightMetric !== "KG") {
+            newWeight = Number(weight) * 2.20462;
+        } else {
+
+            newWeight = Number(weight);
+        }
+        const newItem: ExerciseItem = { "name": exercise, "weight": String(newWeight), "reps": reps, "sets": sets }
         setExerciseList(prev => [...prev, newItem]);
         setExercise("");
         setWeight("");
@@ -352,6 +362,14 @@ const styles = StyleSheet.create({
         alignItems: "stretch",
         flexDirection: "row",
         justifyContent: "space-between",
+    },
+    activeMetric: {
+        backgroundColor: "blue",
+
+    },
+    inactiveMetric: {
+        backgroundColor: "grey",
+
     },
 });
 
