@@ -29,6 +29,14 @@ export default function Workout() {
     const [reps, setReps] = useState("");
     const [sets, setSets] = useState("");
 
+    const [setData, setSetData] = useState(Array.from({ length: Number(sets) }, () =>
+        ({ reps: '', weight: '' })
+    ));
+    const handleChange = (index: number, data: any) => {
+        const updated = [...setData];
+        updated[index] = data;
+        setSetData(updated);
+    }
     const [weightMetric, setWeightMetric] = useState("KG");
 
     const isFormComplete = exercise.trim() !== ''
@@ -157,16 +165,17 @@ export default function Workout() {
                                 />
                                 <TextInput
                                     style={styles.input}
-                                    onChangeText={setWeight}
-                                    value={weight}
-                                    placeholder="Enter weight ... "
+                                    onChangeText={setSets}
+                                    value={sets}
+                                    placeholder="Enter sets"
                                     placeholderTextColor={"#888888"}
                                     keyboardType="numeric"
                                 />
                                 <View className="buttonContainer"
 
                                 >
-                                    <TouchableOpacity className="buttonContent" style={weightMetric === "LBS" ? styles.activeMetric : styles.inactiveMetric}
+                                    <TouchableOpacity className="buttonContent"
+                                        style={weightMetric === "KG" ? styles.activeMetric : styles.inactiveMetric}
                                         onPress={() => { setWeightMetric("KG") }}>
                                         <Text>KG</Text>
                                     </TouchableOpacity>
@@ -178,23 +187,17 @@ export default function Workout() {
                                         <Text>LBS</Text>
                                     </TouchableOpacity>
                                 </View>
-                                <TextInput
-                                    style={styles.input}
-                                    onChangeText={setReps}
-                                    value={reps}
-                                    placeholder="Enter reps"
-                                    placeholderTextColor={"#888888"}
-                                    keyboardType="numeric"
-                                />
 
-                                <TextInput
-                                    style={styles.input}
-                                    onChangeText={setSets}
-                                    value={sets}
-                                    placeholder="Enter sets"
-                                    placeholderTextColor={"#888888"}
-                                    keyboardType="numeric"
-                                />
+                                {Array.from({ length: Number(sets) }).map((_, i) => (
+
+                                    <ExerciseSet
+                                        key={i}
+                                        index={i}
+                                        data={setData[i]}
+                                        onChange={(data) => handleChange(i, data)}
+                                    />
+                                ))}
+
                                 <TouchableOpacity
                                     style={[styles.button,
                                     !isFormComplete && styles.buttonDisabled]}
@@ -278,6 +281,32 @@ export default function Workout() {
     //         body: JSON.stringify({ "testing": "bob" }),
     //     });
     // }
+    const ExerciseSet = ({ index, data, onChange }: { index: number, data: any, onChange: any }) => {
+        const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+            const { name, value } = e.target;
+            onChange({ ...data, [name]: value });
+        };
+        return (
+            <View>
+                <TextInput
+                    style={styles.input}
+                    onChangeText={setWeight}
+                    value={weight}
+                    placeholder="Enter weight ... "
+                    placeholderTextColor={"#888888"}
+                    keyboardType="numeric"
+                />
+                <TextInput
+                    style={styles.input}
+                    onChangeText={setReps}
+                    value={reps}
+                    placeholder="Enter reps"
+                    placeholderTextColor={"#888888"}
+                    keyboardType="numeric"
+                />
+            </View>
+        );
+    }
 }
 function GetWorkouts() {
     return (
