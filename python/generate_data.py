@@ -1,10 +1,9 @@
 import json
 
 
-def generate_data():
+def generate_data(progressionRate=1.01):
     counter = 50
-    betweenWorkout = 4
-    progressionRate = 1.01
+
     workouts = {
         "Push Day": [
             {
@@ -105,10 +104,11 @@ def generate_data():
         ],
     }
     progress = []
-    progress.append(workouts)
-    for i in range(counter):
-        workouts = progress[-1]
+    progress.append({"sessionid": 0, "workouts": workouts})
+    for i in range(1, counter):
+        workouts = progress[-1]["workouts"]
         newWorkout = {}
+        # newWorkout["id"] = i
         for day, workout in workouts.items():
             newWorkout[day] = []
             for exercise in workout:
@@ -124,23 +124,25 @@ def generate_data():
                         "estimate": estimate,
                     }
                 )
-            progress.append(newWorkout)
+            progress.append({"sessionid": i, "workouts": newWorkout})
             with open("testingData.json", "w") as f:
-                json.dump(progress, f)
+                json.dump(progress, f, indent=4)
 
     # print(progress)
+
+
+def multipleUsers():
+    pass
 
 
 def estimate1RM(weight: float, reps: int) -> float:
     estimate = weight * (1 + (reps / 30))
     return estimate
-    print("blob")
 
 
 def reverse_e1RM(e1RM, oldWeight, oldReps):
     possibleValues = []
     repRanges = range(6, 13)
-    result = {}
     for reps in repRanges:
         weight = reverse_weight(e1RM, oldReps)
         rounded_weight = roundNearest(weight, increment=2.5)
@@ -163,7 +165,5 @@ def reverse_weight(e1RM, reps):
     weight = e1RM / (1 + (reps / 30))
     return weight
 
-
-# print(e1RM(80, 8))
 
 generate_data()
