@@ -1,7 +1,19 @@
 import json
+import numpy as np
 
 
-def generate_data(progressionRate=1.01):
+def generate_data(progressionRate=1.01, plateauRate=0.2, skippingRate=0.1):
+    """
+    Generates synthetic training data for prediction model.
+
+    Args:
+        progressionRate (float): Rate of progression for the user.
+        plateauRate (float): Chance that the user will plateau that workout.
+        skippingRate (float): Chance that the user will skip the week of workout.
+
+    Returns:
+        dictionary: Contains all the newly generated data.
+    """
     counter = 50
 
     workouts = {
@@ -106,12 +118,26 @@ def generate_data(progressionRate=1.01):
     progress = []
     progress.append({"sessionid": 0, "workouts": workouts})
     for i in range(1, counter):
+        if np.random.rand() < skippingRate:
+            print("user skipped this weeks workouts")
+            continue
         workouts = progress[-1]["workouts"]
         newWorkout = {}
         # newWorkout["id"] = i
         for day, workout in workouts.items():
             newWorkout[day] = []
             for exercise in workout:
+                if np.random.rand() < plateauRate:
+                    newWorkout[day].append(
+                        {
+                            "name": exercise["name"],
+                            "weight": exercise["weight"],
+                            "reps": exercise["reps"],
+                            "sets": exercise["sets"],
+                            "estimate": exercise["estimate"],
+                        }
+                    )
+                    continue
                 estimate = exercise["estimate"] * progressionRate
 
                 result = reverse_e1RM(estimate, exercise["weight"], exercise["reps"])
@@ -125,14 +151,43 @@ def generate_data(progressionRate=1.01):
                     }
                 )
             progress.append({"sessionid": i, "workouts": newWorkout})
-            with open("testingData.json", "w") as f:
-                json.dump(progress, f, indent=4)
+    return progress
 
     # print(progress)
 
 
 def multipleUsers():
-    pass
+    users = [
+        {
+            "id": "U1",
+            "stats": {
+                "progressionRate": 1.01,
+                "plateauRate": 0.2,
+                "skippingRate": 0.02,
+            },
+        },
+        {
+            "id": "U2",
+            "stats": {
+                "progressionRate": 1.015,
+                "plateauRate": 0.4,
+                "skippingRate": 0.05,
+            },
+        },
+        {
+            "id": "U3",
+            "stats": {
+                "progressionRate": 1.005,
+                "plateauRate": 0.3,
+                "skippingRate": 0.08,
+            },
+        },
+    ]
+    data = []
+    for user in users:
+        data.append({"id": user["id"], "data": generate_data(**user["stats"])})
+    with open("testingData.json", "w") as f:
+        json.dump(data, f, indent=4)
 
 
 def estimate1RM(weight: float, reps: int) -> float:
@@ -166,4 +221,4 @@ def reverse_weight(e1RM, reps):
     return weight
 
 
-generate_data()
+multipleUsers()
