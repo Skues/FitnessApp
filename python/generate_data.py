@@ -1,8 +1,9 @@
 import json
 import numpy as np
+import pandas as pd
 
 
-def generate_data(progressionRate=1.01, plateauRate=0.2, skippingRate=0.1):
+def generate_data(userID, progressionRate=1.01, plateauRate=0.2, skippingRate=0.1):
     """
     Generates synthetic training data for prediction model.
 
@@ -119,7 +120,7 @@ def generate_data(progressionRate=1.01, plateauRate=0.2, skippingRate=0.1):
     progress.append({"sessionid": 0, "workouts": workouts})
     for i in range(1, counter):
         if np.random.rand() < skippingRate:
-            print("user skipped this weeks workouts")
+            print(f"{userID} skipped this weeks workouts")
             continue
         workouts = progress[-1]["workouts"]
         newWorkout = {}
@@ -150,7 +151,7 @@ def generate_data(progressionRate=1.01, plateauRate=0.2, skippingRate=0.1):
                         "estimate": estimate,
                     }
                 )
-            progress.append({"sessionid": i, "workouts": newWorkout})
+        progress.append({"sessionid": i, "workouts": newWorkout})
     return progress
 
     # print(progress)
@@ -185,9 +186,16 @@ def multipleUsers():
     ]
     data = []
     for user in users:
-        data.append({"id": user["id"], "data": generate_data(**user["stats"])})
+        data.append(
+            {
+                "id": user["id"],
+                "data": generate_data(userID=user["id"], **user["stats"]),
+            }
+        )
     with open("testingData.json", "w") as f:
         json.dump(data, f, indent=4)
+    df = pd.DataFrame(data)
+    return data
 
 
 def estimate1RM(weight: float, reps: int) -> float:
