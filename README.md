@@ -1,6 +1,6 @@
-# 🏋🏽 FitnessApp (Will change)
+# 🏋🏽 Progressive
 
-(App name) is a full-stack fitness tracking app build using React Native on the frontend and Flask (Python) 
+Progressive is a full-stack fitness tracking app build using React Native on the frontend and Flask (Python) 
 on the backend. It allows users to log workouts and exerciss, with the goal of visualising progress and
 eventually predicting progress using machine learning.
 
